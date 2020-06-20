@@ -19,7 +19,7 @@ class Battlesnake(object):
         return {
             "apiversion": "1",
             "author": "Yun",  # TODO: Your Battlesnake Username
-            "color": "#89cff0",  # TODO: Personalize
+            "color": "#c383f0",  # TODO: Personalize
             "head": "safe",  # TODO: Personalize
             "tail": "round-bum",  # TODO: Personalize
         }
