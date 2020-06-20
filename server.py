@@ -19,9 +19,9 @@ class Battlesnake(object):
         return {
             "apiversion": "1",
             "author": "Yun",  # TODO: Your Battlesnake Username
-            "color": "#F4C2C2",  # TODO: Personalize
-            "head": "shac-caffeine",  # TODO: Personalize
-            "tail": "shac-coffee",  # TODO: Personalize
+            "color": "#89cff0",  # TODO: Personalize
+            "head": "shac-workout",  # TODO: Personalize
+            "tail": "shac-mouse",  # TODO: Personalize
         }
 
     @cherrypy.expose
@@ -45,7 +45,7 @@ class Battlesnake(object):
         data = cherrypy.request.json
 
         # Choose a random direction to move in
-        possible_moves = ["up", "right", "down", "left"]
+        possible_moves = ["right", "down", "left", "up"]
 
         head = data["you"]["body"][0]
         body = data["you"]["body"]
@@ -54,28 +54,31 @@ class Battlesnake(object):
         snakes = data["board"]["snakes"]
         foods = data["board"]["food"]
         nearest_food = findNearestFood(head, foods)
-        direction = getDirectionIndex(body)
-        snake_heads = getSnakeHeads(body, snakes)
+        # direction = getDirectionIndex(body)
+        snake_heads = getSnakeHeads(board, body, snakes)
         
 
-        for it in range(100):
-          move = random.choice(possible_moves)
-        # for move in possible_moves:
+        # for it in range(100):
+          # move = random.choice(possible_moves)
+        for move in possible_moves:
+          if health <= 30:
+            move = random.choice(possible_moves)
           coord = moveAsCoord(move, head)
 
+          print("----------------")
+          print(move)
+          print(nearest_food)
           if len(foods) >= 1:
             if data["turn"] <= 30 or health <= 30:
-              if isValidMove(board, coord, snakes) and isTowardsFood(head, coord, nearest_food):
+              if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads) and isTowardsFood(head, coord, nearest_food):
                 break
-          else:
-            if isValidMove(board, coord, snakes) and isAwayFromHeads(head, coord, snake_heads):
-              break
+
+          if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads):
+            break
 
           # if len(foods) >= 1 and (health <= 20 or data["turn"] <= 50):
           #   if isTowardsFood(head, coord, nearest_food) and isValidMove(board, coord, snakes):
           #     break
-          if isValidMove(board, coord, snakes):
-            break
 
         print(f"MOVE: {move}")
         return {"move": move}
@@ -118,17 +121,6 @@ def moveAsCoord(move, head):
     return {"x": head["x"] + 1, "y": head["y"]}
   elif move == "left":
     return {"x": head["x"] - 1, "y": head["y"]}
-
-# def goForNearestFood(head, nearest_food):
-#   if nearest_food["x"] < head["x"]:
-#     return "left"
-#   elif nearest_food["x"] > head["x"]:
-#     return "right"
-#   else:
-#     if nearest_food["y"] > head["y"]:
-#       return "up"
-#     else:
-#       return "down"
   
 def isTowardsFood(head, coord, food):
   if abs(food["x"] - head["x"]) >= abs(food["x"] - coord["x"]) and abs(food["y"] - head["y"]) >= abs(food["y"] - coord["y"]):
@@ -151,26 +143,35 @@ def calculateDistance(A, B):
   y_diff = A["y"] - B["y"]
   return abs(x_diff) + abs(y_diff)
 
-def getDirectionIndex(body):
-  if body[0]["y"] > body[1]["y"]:
-    return 0
-  if body[0]["x"] > body[1]["x"]:
-    return 1
-  if body[0]["y"] < body[1]["y"]:
-    return 2
-  if body[0]["x"] < body[1]["x"]:
-    return 3
+# def getDirectionIndex(body):
+#   if body[0]["y"] > body[1]["y"]:
+#     return 0
+#   if body[0]["x"] > body[1]["x"]:
+#     return 1
+#   if body[0]["y"] < body[1]["y"]:
+#     return 2
+#   if body[0]["x"] < body[1]["x"]:
+#     return 3
 
-def getSnakeHeads(body, snakes):
+def getSnakeHeads(board, body, snakes):
   heads = []
   for snake in snakes:
-    if snake["body"][0] != body[0] and len(snake["body"]) >= len(body):
+    if snake["body"][0] != body[0]:
       dangerous_head = snake["body"][0]
-      heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]})
-      heads.append({"x": dangerous_head["x"]-1, "y": dangerous_head["y"]})
-      heads.append({"x": dangerous_head["x"]+1, "y": dangerous_head["y"]})
-      heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]-1})
-      heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]+1})
+      if len(snake["body"]) == len(body):
+        if dangerous_head["x"]-1 != 0:
+          heads.append({"x": dangerous_head["x"]-1, "y": dangerous_head["y"]})
+        if dangerous_head["x"]+1 != board["width"]-1:
+          heads.append({"x": dangerous_head["x"]+1, "y": dangerous_head["y"]})
+        if dangerous_head["y"]-1 != 0:
+          heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]-1})
+        if dangerous_head["y"]+1 != board["height"]-1:
+          heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]+1})
+      if len(snake["body"]) > len(body):
+        heads.append({"x": dangerous_head["x"]-1, "y": dangerous_head["y"]})
+        heads.append({"x": dangerous_head["x"]+1, "y": dangerous_head["y"]})
+        heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]-1})
+        heads.append({"x": dangerous_head["x"], "y": dangerous_head["y"]+1})
   return heads
 
 def isAwayFromHeads(coord, snake_heads):
