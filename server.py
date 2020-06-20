@@ -59,7 +59,7 @@ class Battlesnake(object):
           coord = moveAsCoord(move, head)
 
           if len(foods) > 0:
-            if data["turn"] <= 100 or health <= 30:
+            if data["turn"] <= 30 or health <= 30:
               if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads) and isTowardsFood(head, coord, nearest_food):
                 return {"move": move}
             # else:
