@@ -46,7 +46,6 @@ class Battlesnake(object):
 
         # Choose a random direction to move in
         possible_moves = ["right", "down", "left", "up"]
-
         head = data["you"]["body"][0]
         body = data["you"]["body"]
         health = data["you"]["health"]
@@ -54,31 +53,23 @@ class Battlesnake(object):
         snakes = data["board"]["snakes"]
         foods = data["board"]["food"]
         nearest_food = findNearestFood(head, foods)
-        # direction = getDirectionIndex(body)
         snake_heads = getSnakeHeads(board, body, snakes)
         
-
-        # for it in range(100):
-          # move = random.choice(possible_moves)
         for move in possible_moves:
-          if health <= 30:
-            move = random.choice(possible_moves)
           coord = moveAsCoord(move, head)
 
-          print("----------------")
-          print(move)
-          print(nearest_food)
-          if len(foods) >= 1:
-            if data["turn"] <= 30 or health <= 30:
+          if len(foods) > 0:
+            if data["turn"] <= 100 or health <= 30:
               if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads) and isTowardsFood(head, coord, nearest_food):
-                break
+                return {"move": move}
+            # else:
+            #   if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads):
+            #     return {"move": move}
 
+        for move in possible_moves:
+          coord = moveAsCoord(move, head)
           if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads):
-            break
-
-          # if len(foods) >= 1 and (health <= 20 or data["turn"] <= 50):
-          #   if isTowardsFood(head, coord, nearest_food) and isValidMove(board, coord, snakes):
-          #     break
+            return {"move": move}
 
         print(f"MOVE: {move}")
         return {"move": move}
@@ -123,7 +114,7 @@ def moveAsCoord(move, head):
     return {"x": head["x"] - 1, "y": head["y"]}
   
 def isTowardsFood(head, coord, food):
-  if abs(food["x"] - head["x"]) >= abs(food["x"] - coord["x"]) and abs(food["y"] - head["y"]) >= abs(food["y"] - coord["y"]):
+  if abs(food["x"] - head["x"]) > abs(food["x"] - coord["x"]) or abs(food["y"] - head["y"]) > abs(food["y"] - coord["y"]):
     return True
   else:
     return False
@@ -142,16 +133,6 @@ def calculateDistance(A, B):
   x_diff = A["x"] - B["x"]
   y_diff = A["y"] - B["y"]
   return abs(x_diff) + abs(y_diff)
-
-# def getDirectionIndex(body):
-#   if body[0]["y"] > body[1]["y"]:
-#     return 0
-#   if body[0]["x"] > body[1]["x"]:
-#     return 1
-#   if body[0]["y"] < body[1]["y"]:
-#     return 2
-#   if body[0]["x"] < body[1]["x"]:
-#     return 3
 
 def getSnakeHeads(board, body, snakes):
   heads = []
