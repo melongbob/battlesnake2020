@@ -20,8 +20,8 @@ class Battlesnake(object):
             "apiversion": "1",
             "author": "Yun",  # TODO: Your Battlesnake Username
             "color": "#89cff0",  # TODO: Personalize
-            "head": "shac-workout",  # TODO: Personalize
-            "tail": "shac-mouse",  # TODO: Personalize
+            "head": "safe",  # TODO: Personalize
+            "tail": "round-bum",  # TODO: Personalize
         }
 
     @cherrypy.expose
@@ -68,7 +68,8 @@ class Battlesnake(object):
 
         for move in possible_moves:
           coord = moveAsCoord(move, head)
-          if isValidMove(board, coord, snakes) and isAwayFromHeads(coord, snake_heads):
+          if isValidMove(board, coord, snakes): 
+          # and isAwayFromHeads(coord, snake_heads):
             return {"move": move}
 
         print(f"MOVE: {move}")
